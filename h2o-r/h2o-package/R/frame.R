@@ -2827,7 +2827,7 @@ as.h2o.data.frame <- function(x, destination_frame="", ...) {
   types <- sapply(x, function(x) class(x)[1L]) # ensure vector returned
   class.map <- h2o.class.map()
   types[types %in% names(class.map)] <- class.map[types[types %in% names(class.map)]]
-  if(getOption("h2o.fwrite", TRUE) && requireNamespace("data.table", quietly=TRUE)) {
+  if(getOption("h2o.fwrite", TRUE) && requireNamespace("data.table", quietly=TRUE) && (packageVersion("data.table") >= as.package_version("1.9.7"))) {
     data.table::fwrite(x, tmpf, na="NA_h2o", row.names=FALSE, showProgress=FALSE)
   } else {
     write.csv(x, file = tmpf, row.names = FALSE, na="NA_h2o")
@@ -2938,7 +2938,7 @@ as.data.frame.H2OFrame <- function(x, ...) {
   # Convert all date columns to POSIXct
   dates <- attr(x, "types") %in% "time"
   
-  if(getOption("h2o.fread", TRUE) && requireNamespace("data.table", quietly=TRUE)) {
+  if(getOption("h2o.fread", TRUE) && requireNamespace("data.table", quietly=TRUE) && (packageVersion("data.table") >= as.package_version("1.9.7"))) {
     df <- data.table::fread(ttt, blank.lines.skip = FALSE, na.strings = "", colClasses = colClasses, showProgress=FALSE, data.table=FALSE, ...)
     if(sum(dates))
       for (i in which(dates)) data.table::setattr(df[[i]], "class", "POSIXct")

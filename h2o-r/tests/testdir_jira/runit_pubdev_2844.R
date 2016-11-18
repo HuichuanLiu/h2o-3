@@ -5,6 +5,7 @@ test.pubdev_2844 <- function() {
   
   df1 <- iris
   h2o.no_progress()
+  do.dt <- requireNamespace("data.table", quietly=TRUE) && (packageVersion("data.table") >= as.package_version("1.9.7"))
   
   # as.h2o
   op <- options("datatable.verbose"=TRUE, "h2o.fwrite"=NULL)
@@ -13,14 +14,14 @@ test.pubdev_2844 <- function() {
   )
   options(op)
   expect_true(is.h2o(hf1))
-  if(requireNamespace("data.table", quietly=TRUE)) {
+  if(do.dt) {
     expect_true(length(co) && sum(grepl("maxLineLen", co)), label="as.h2o should use data.table::fwrite")
   } else {
     expect_true(!length(co), label="as.h2o should not produce verbose messages when data.table::fwrite is not used")
   }
   
   # as.h2o - data.table off
-  if(requireNamespace("data.table", quietly=TRUE)) {
+  if(do.dt) {
     op <- options("datatable.verbose"=TRUE, "h2o.fwrite"=FALSE)
     co <- capture.output(
       hf2 <- as.h2o(df1, destination_frame = "pubdev2844.2")
@@ -37,14 +38,14 @@ test.pubdev_2844 <- function() {
   )
   options(op)
   expect_true(is.data.frame(df2))
-  if(requireNamespace("data.table", quietly=TRUE)) {
+  if(do.dt) {
     expect_true(length(co) && sum(grepl("Converting column", co)), label="as.data.frame.H2OFrame should not produce verbose messages when data.table::fread is not used")
   } else {
     expect_true(!length(co))
   }
   
   # as.data.frame - data.table off
-  if(requireNamespace("data.table", quietly=TRUE)) {
+  if(do.dt) {
     op <- options("datatable.verbose"=TRUE, "h2o.fread"=FALSE)
     co <- capture.output(
       df3 <- as.data.frame(hf2)
@@ -55,7 +56,7 @@ test.pubdev_2844 <- function() {
   }
   
   expect_equal(df1, df2, label="data.frame passed to h2o and back are equal")
-  if(requireNamespace("data.table", quietly=TRUE))
+  if(do.dt)
     expect_equal(df1, df3, label="data.frame passed to h2o and back are equal also when data.table force disabled")
   
 }
